@@ -23,6 +23,8 @@ backend/bin
 
 .vscode
 .idea
+.project
+.classpath
 
 # ======================
 # ENV FILES
