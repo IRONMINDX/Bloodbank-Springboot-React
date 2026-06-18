@@ -1,13 +1,15 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
-function signup() {
+function Signup({ onSubmit, onSwitchToLogin }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log('Signing up with:', { email, password });
-    // Add your signup logic here (e.g., API call)
+    if (onSubmit) {
+      onSubmit({ email, password });
+    }
   };
 
   return (
@@ -38,8 +40,14 @@ function signup() {
           Sign Up
         </button>
       </form>
+      <p style={{ marginTop: '12px' }}>
+        Already have an account?{' '}
+        <button type="button" onClick={onSwitchToLogin} style={{ border: 'none', background: 'none', color: '#bf1e2e', cursor: 'pointer', padding: 0 }}>
+          Log in
+        </button>
+      </p>
     </div>
   );
 }
 
-export default signup;                                                
+export default Signup;
