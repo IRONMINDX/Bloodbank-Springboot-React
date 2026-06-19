@@ -50,9 +50,9 @@ function App() {
       <div style={{ minHeight: '100vh', background: 'var(--bb-bg)', color: 'var(--bb-text)' }}>
         <Navbar
           links={[
-            { label: 'Dashboard', href: 'pages/login.jsx' },
-            { label: 'Login', href: 'pages/login.jsx'},
-            { label: 'Sign Up', href: 'pages/signup.jsx' },
+            { label: 'Dashboard', href: '#dashboard' },
+            { label: 'Login', href: '#login' },
+            { label: 'Sign Up', href: '#signup' },
           ]}
           actionLabel="Sign Up"
           onAction={() => setPage('signup')}
