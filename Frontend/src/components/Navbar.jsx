@@ -42,7 +42,18 @@ function Navbar({
         <nav className={`bb-nav__menu ${open ? 'bb-nav__menu--open' : ''}`} aria-label="Primary navigation">
           <div className="bb-nav__links">
             {links.map((link) => (
-              <a className="bb-nav__link" href={link.href} key={link.label} onClick={handleLinkClick}>
+              <a
+                className="bb-nav__link"
+                href={link.href}
+                key={link.label}
+                onClick={(e) => {
+                  if (link.onClick) {
+                    e.preventDefault();
+                    link.onClick();
+                  }
+                  handleLinkClick();
+                }}
+              >
                 {link.label}
               </a>
             ))}

@@ -4,6 +4,7 @@ import BloodCard from './components/BloodCard.jsx';
 import DonorForm from './components/DonorForm.jsx';
 import Footer from './components/Footer.jsx';
 import Navbar from './components/Navbar.jsx';
+import BloodRequestPage from './pages/BloodRequestPage.jsx';
 import Login from './pages/login.jsx';
 import Signup from './pages/signup.jsx';
 import './components/bloodbank.css';
@@ -13,6 +14,7 @@ function App() {
   const [inventory, setInventory] = useState([]);
   const [loadingInventory, setLoadingInventory] = useState(true);
   const [inventoryError, setInventoryError] = useState('');
+  const [selectedBloodGroup, setSelectedBloodGroup] = useState('');
 
   useEffect(() => {
     let isMounted = true;
@@ -37,7 +39,8 @@ function App() {
   }, []);
 
   const handleRequest = (bloodGroup) => {
-    console.log('Request blood for:', bloodGroup);
+    setSelectedBloodGroup(bloodGroup || '');
+    setPage('requests');
   };
 
   const handleDonorSubmit = (savedDonor) => {
@@ -49,9 +52,10 @@ function App() {
       <div style={{ minHeight: '100vh', background: 'var(--bb-bg)', color: 'var(--bb-text)' }}>
         <Navbar
           links={[
-            { label: 'Dashboard', href: '#dashboard' },
-            { label: 'Login', href: '#login' },
-            { label: 'Sign Up', href: '#signup' },
+            { label: 'Dashboard', href: '#dashboard', onClick: () => setPage('dashboard') },
+            { label: 'Blood Requests', href: '#requests', onClick: () => setPage('requests') },
+            { label: 'Login', href: '#login', onClick: () => setPage('login') },
+            { label: 'Sign Up', href: '#signup', onClick: () => setPage('signup') },
           ]}
           actionLabel="Sign Up"
           onAction={() => setPage('signup')}
@@ -84,9 +88,10 @@ function App() {
       <div style={{ minHeight: '100vh', background: 'var(--bb-bg)', color: 'var(--bb-text)' }}>
         <Navbar
           links={[
-            { label: 'Dashboard', href: '#dashboard' },
-            { label: 'Login', href: '#login' },
-            { label: 'Sign Up', href: '#signup' },
+            { label: 'Dashboard', href: '#dashboard', onClick: () => setPage('dashboard') },
+            { label: 'Blood Requests', href: '#requests', onClick: () => setPage('requests') },
+            { label: 'Login', href: '#login', onClick: () => setPage('login') },
+            { label: 'Sign Up', href: '#signup', onClick: () => setPage('signup') },
           ]}
           actionLabel="Login"
           onAction={() => setPage('login')}
@@ -114,17 +119,48 @@ function App() {
     );
   }
 
+  if (page === 'requests') {
+    return (
+      <div style={{ minHeight: '100vh', background: 'var(--bb-bg)', color: 'var(--bb-text)' }}>
+        <Navbar
+          links={[
+            { label: 'Dashboard', href: '#dashboard', onClick: () => setPage('dashboard') },
+            { label: 'Blood Requests', href: '#requests', onClick: () => setPage('requests') },
+            { label: 'Donate', href: '#donor-form', onClick: () => setPage('dashboard') },
+            { label: 'Login', href: '#login', onClick: () => setPage('login') },
+            { label: 'Sign Up', href: '#signup', onClick: () => setPage('signup') },
+          ]}
+          actionLabel="Go to Dashboard"
+          onAction={() => setPage('dashboard')}
+        />
+
+        <main className="bb-shell" style={{ padding: '2rem 0 3rem' }}>
+          <BloodRequestPage
+            initialBloodGroup={selectedBloodGroup}
+            onNavigateDashboard={() => setPage('dashboard')}
+          />
+        </main>
+
+        <Footer />
+      </div>
+    );
+  }
+
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bb-bg)', color: 'var(--bb-text)' }}>
       <Navbar
         links={[
-          { label: 'Home', href: '#home' },
+          { label: 'Home', href: '#home', onClick: () => setPage('dashboard') },
           { label: 'Blood Stock', href: '#blood-stock' },
           { label: 'Donate', href: '#donor-form' },
-          { label: 'Login', href: '#login' },
-          { label: 'Sign Up', href: '#signup' },
+          { label: 'Blood Requests', href: '#requests', onClick: () => setPage('requests') },
+          { label: 'Login', href: '#login', onClick: () => setPage('login') },
+          { label: 'Sign Up', href: '#signup', onClick: () => setPage('signup') },
         ]}
-        onAction={() => document.getElementById('donor-form')?.scrollIntoView({ behavior: 'smooth' })}
+        onAction={() => {
+          setSelectedBloodGroup('');
+          setPage('requests');
+        }}
         actionLabel="Emergency Request"
       />
 
@@ -146,6 +182,16 @@ function App() {
               <a className="bb-button bb-button--ghost" href="#donor-form" style={{ textDecoration: 'none' }}>
                 Register Donor
               </a>
+              <button
+                className="bb-button bb-button--ghost"
+                type="button"
+                onClick={() => {
+                  setSelectedBloodGroup('');
+                  setPage('requests');
+                }}
+              >
+                Submit Blood Request
+              </button>
               <button className="bb-button bb-button--ghost" type="button" onClick={() => setPage('login')}>
                 Login
               </button>

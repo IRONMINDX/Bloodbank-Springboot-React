@@ -148,6 +148,20 @@
   color: var(--bb-primary-dark);
 }
 
+.bb-button--danger {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.bb-button--danger:hover:not(:disabled) {
+  background: #fecaca;
+}
+
+.bb-button--sm {
+  padding: 0.5rem 0.85rem;
+  font-size: 0.85rem;
+}
+
 .bb-nav__toggle {
   display: none;
   align-items: center;
