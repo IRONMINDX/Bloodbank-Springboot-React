@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { createDonor } from '../api/donorApi.js';
 import './bloodbank.css';
 
 const initialState = {
@@ -16,27 +17,46 @@ const initialState = {
 
 function DonorForm({ onSubmit }) {
   const [form, setForm] = useState(initialState);
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState('');
+  const [error, setError] = useState('');
 
   const handleChange = (event) => {
     const { name, value } = event.target;
     setForm((current) => ({ ...current, [name]: value }));
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
+    setLoading(true);
+    setSuccess('');
+    setError('');
 
     const payload = {
-      ...form,
-      age: form.age ? Number(form.age) : '',
+      fullName: form.fullName.trim(),
+      bloodGroup: form.bloodGroup,
+      age: form.age ? Number(form.age) : null,
+      gender: form.gender,
+      phone: form.phone.trim(),
+      email: form.email.trim(),
+      city: form.city.trim(),
+      lastDonation: form.lastDonation ? form.lastDonation : null,
+      availability: form.availability,
+      message: form.message.trim(),
     };
 
-    if (onSubmit) {
-      onSubmit(payload);
-    } else {
-      console.log('Donor form submitted:', payload);
+    try {
+      const savedDonor = await createDonor(payload);
+      setSuccess('Donor registered successfully!');
+      setForm(initialState);
+      if (onSubmit) {
+        onSubmit(savedDonor);
+      }
+    } catch (err) {
+      setError(err.message || 'Failed to submit donor registration. Please try again.');
+    } finally {
+      setLoading(false);
     }
-
-    setForm(initialState);
   };
 
   return (
@@ -50,6 +70,18 @@ function DonorForm({ onSubmit }) {
           Share your details so hospitals and patients can reach you quickly when blood is needed.
         </p>
       </div>
+
+      {success && (
+        <div className="bb-alert bb-alert--success" role="status">
+          {success}
+        </div>
+      )}
+
+      {error && (
+        <div className="bb-alert bb-alert--error" role="alert">
+          {error}
+        </div>
+      )}
 
       <form onSubmit={handleSubmit}>
         <div className="bb-form__grid">
@@ -196,8 +228,12 @@ function DonorForm({ onSubmit }) {
 
         <div className="bb-form__actions">
           <p className="bb-form__hint">We only use your details for donation and emergency coordination.</p>
-          <button className="bb-button bb-button--primary" type="submit">
-            Submit Donor Details
+          <button
+            className="bb-button bb-button--primary"
+            type="submit"
+            disabled={loading}
+          >
+            {loading ? 'Submitting...' : 'Submit Donor Details'}
           </button>
         </div>
       </form>

@@ -41,8 +41,8 @@ function App() {
     console.log('Request blood for:', bloodGroup);
   };
 
-  const handleDonorSubmit = (payload) => {
-    console.log('Donor payload:', payload);
+  const handleDonorSubmit = (savedDonor) => {
+    console.log('Donor registered successfully:', savedDonor);
   };
 
   if (page === 'login') {
