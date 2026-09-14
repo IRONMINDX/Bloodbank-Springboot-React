@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { getAllInventory } from './api/inventoryApi.js';
 import BloodCard from './components/BloodCard.jsx';
 import DonorForm from './components/DonorForm.jsx';
 import Footer from './components/Footer.jsx';
@@ -9,33 +10,31 @@ import './components/bloodbank.css';
 
 function App() {
   const [page, setPage] = useState('dashboard');
+  const [inventory, setInventory] = useState([]);
+  const [loadingInventory, setLoadingInventory] = useState(true);
+  const [inventoryError, setInventoryError] = useState('');
 
-  const stockCards = [
-    {
-      bloodGroup: 'A+',
-      availableUnits: 12,
-      requiredUnits: 18,
-      hospitalName: 'City Care Hospital',
-      city: 'Bhopal',
-      status: 'Urgent',
-    },
-    {
-      bloodGroup: 'O-',
-      availableUnits: 4,
-      requiredUnits: 10,
-      hospitalName: 'LifeLine Medical Center',
-      city: 'Indore',
-      status: 'Critical',
-    },
-    {
-      bloodGroup: 'B+',
-      availableUnits: 20,
-      requiredUnits: 14,
-      hospitalName: 'Red Cross Unit',
-      city: 'Jabalpur',
-      status: 'Stable',
-    },
-  ];
+  useEffect(() => {
+    let isMounted = true;
+
+    getAllInventory()
+      .then((data) => {
+        if (isMounted) {
+          setInventory(data || []);
+          setLoadingInventory(false);
+        }
+      })
+      .catch((err) => {
+        if (isMounted) {
+          setInventoryError(err.message || 'Failed to load blood inventory records.');
+          setLoadingInventory(false);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const handleRequest = (bloodGroup) => {
     console.log('Request blood for:', bloodGroup);
@@ -158,13 +157,14 @@ function App() {
 
           <div>
             <BloodCard
-              bloodGroup="O+"
-              availableUnits={8}
-              requiredUnits={15}
-              hospitalName="Central Hospital"
-              city="Bhopal"
-              status="Urgent"
-              onRequest={() => handleRequest('O+')}
+              bloodGroup={inventory[0]?.bloodGroup || 'O+'}
+              availableUnits={inventory[0]?.availableUnits ?? 8}
+              requiredUnits={inventory[0]?.requiredUnits ?? 15}
+              hospitalName={inventory[0]?.hospitalName || 'Central Hospital'}
+              city={inventory[0]?.city || 'Bhopal'}
+              status={inventory[0]?.status || 'Urgent'}
+              lastUpdated={inventory[0]?.lastUpdated}
+              onRequest={() => handleRequest(inventory[0]?.bloodGroup || 'O+')}
             />
           </div>
         </section>
@@ -176,19 +176,35 @@ function App() {
               Blood stock overview
             </h2>
             <p style={{ color: 'var(--bb-muted)', margin: 0 }}>
-              Sample stock cards you can connect to Spring Boot and MySQL later.
+              Live blood stock availability across connected hospital units.
             </p>
           </div>
 
-          <div className="bb-stock-grid">
-            {stockCards.map((card) => (
-              <BloodCard
-                key={`${card.bloodGroup}-${card.hospitalName}`}
-                {...card}
-                onRequest={() => handleRequest(card.bloodGroup)}
-              />
-            ))}
-          </div>
+          {loadingInventory && (
+            <p style={{ color: 'var(--bb-muted)', fontStyle: 'italic' }}>Loading blood inventory...</p>
+          )}
+
+          {inventoryError && (
+            <div className="bb-alert bb-alert--error" role="alert">
+              {inventoryError}
+            </div>
+          )}
+
+          {!loadingInventory && !inventoryError && inventory.length === 0 && (
+            <p style={{ color: 'var(--bb-muted)' }}>No blood inventory records available right now.</p>
+          )}
+
+          {!loadingInventory && !inventoryError && inventory.length > 0 && (
+            <div className="bb-stock-grid">
+              {inventory.map((card) => (
+                <BloodCard
+                  key={card.id || `${card.bloodGroup}-${card.hospitalName}`}
+                  {...card}
+                  onRequest={() => handleRequest(card.bloodGroup)}
+                />
+              ))}
+            </div>
+          )}
         </section>
 
         <section id="donor-form" style={{ marginTop: '2rem' }}>

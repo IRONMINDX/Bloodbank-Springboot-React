@@ -47,7 +47,7 @@ function BloodCard({
         </div>
         <div className="bb-stat">
           <span className="bb-stat__label">Updated</span>
-          <span className="bb-stat__value">{lastUpdated}</span>
+          <span className="bb-stat__value">{lastUpdated || 'Recently'}</span>
         </div>
       </div>
 
